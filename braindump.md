@@ -6,6 +6,7 @@
 * https://github.com/lme4/lme4/blob/flexLambda/R/reGenerators.R
 * https://bbolker.github.io/mixedmodels-misc/notes/varmats.html
 * https://github.com/glmmTMB/glmmTMB/blob/604f820c67ed2894625b9c6d1b31cf1ff87aea0a/glmmTMB/R/VarCorr.R
+* https://rpubs.com/samuelkn/CovarianceStructuresInR
 
 ## questions
 
