@@ -2,13 +2,23 @@
 title: "Class Design Document"
 format: html
 engine: knitr
+bibliography: gsoc2025.bib
 ---
 
 # Design Document: Structured Covariance Matrices for `lme4`
 
 ## Task 0: Class Structure
 
-### Heiarchical Class Structure
+::: {.callout-note}
+**BMB**: It may be worth thinking about several (potential) characteristics of a covariance-matrix class in addition to the mathematical structure of the covariance matrix itself:
+
+- how is it parameterized? (e.g. cf. `nlme`'s `pdLogChol` vs `pdNatural`, which are two different parameterizations of general-positive-definite matrices; there are several more options here, see @pinheiroUnconstrained1996 (perhaps these are potential sub-classes of a class defined by structure alone? Check the class structure underneath `nlme`?)
+- how are any auxiliary data passed to the model? For example, we could fit a phylogenetic model with `propto` by computing the correlation structure from the tree ourselves (see `ape::vcv.phylo`), or by passing a phylogenetic tree object and asking the package to compute the correlation for us. Similarly, spatial models can take their data by taking a distance matrix, or by taking `x`, `y` coordinates and computing Euclidean distances internally (or by taking an arbitrary set of coordinates and a distance function?). I find both `nlme` and `glmmTMB` a bit clunky in this respect: `nlme` hard-codes a Euclidean distance, while `glmmTMB` has a `numFactor` argument for packaging coordinate information with values. In `glmmTMB`, `ou` and `exp` both represent exponentially decaying correlation functions, with `ou` intended for 1D/time-series and `exp` intended for 2D/spatial problems ...
+
+:::
+
+
+### Hierarchical Class Structure
 
 -   **StructuredCov**
     -   **IdentityStructuredCov**
@@ -17,11 +27,24 @@ engine: knitr
     -   **UnstructuredCov**
         -   `us` (unstructured): $\theta = \mathrm{Cholesky}(\Sigma)$
         -   `rr` (reduced rank): $\theta = \Lambda \Lambda^\top$, $\dim(\Lambda) = q \times r$
+
+::: {.callout-note}
+**BMB**: I wouldn't say reduced rank is "unstructured". There is really only one type of "unstructured" covariance matrix, i.e. one whose only constraint is that it is positive semidefinite.
+:::
+<!-- have to hack the list structure in order to have callouts in the middle ... -->
+
+-
     -   **CorrelationStructuredCov**
         -   `cs` (compound symmetric): $\theta = (\sigma^2, \rho)$
         -   `hetcs` (heterogeneous compound symmetric): $\theta = \{\sigma_1^2, \ldots, \sigma_n^2\},\ \rho$
         -   `propto` (fixed correlation matrix): fixed correlation $+$ variance
         -   `gau` (Gaussian correlation): $\theta = \sigma^2 + \text{shape}$
+::: {.callout-note}
+**BMB**: I don't understand the justification for this category (maybe you could include some notes explaining the scope of each category?) (1) at least in `glmmTMB`, `gau()` is a spatial correlation structure --- although arguably you could use it (a Gaussian process with a 'squared exponential'/'Gaussian'/'radial basis function' kernel) in 1D, as a time-series model as well. In any case, it's distance-dependent in a way that doesn't naturally seem to fit with the other cases.
+:::
+        
+        
+-
     -   **TimeSeriesStructuredCov**
         -   **ARStructuredCov**
             -   `ar1` (autoregressive order 1, homogeneous): $\theta = (\sigma^2, \rho)$
@@ -31,6 +54,12 @@ engine: knitr
         -   `toep` (Toeplitz structure): $\theta =$ banded entries of $\Sigma$
         -   `mat` (Matérn kernel): $\theta =$ scale $+$ shape
         -   `ou` (Ornstein–Uhlenbeck process): $\theta = (\sigma^2, \phi)$
+        
+::: {.callout-note}
+**BMB**: `toep` can be considered a time-series structure (I think `toep` is `ante`/AR with the maximum number of steps?), but is also often used for discrete spatial designs. `mat` should almost certainly be spatial rather than time-series (although see notes above about `ou` vs. `exp`, and `gau`, and 1- vs 2D Gaussian processes)
+:::
+
+-
     -   **SpatialStructuredCov**
         -   `exp` (exponential): $\theta = (\sigma^2, \phi)$
         -   `lin` (linear): $\theta = (\sigma^2, \phi)$
@@ -58,13 +87,17 @@ where $d_{ij}$ is the distance between observations $x_i$ and $x_j$, $\sigma^2$ 
 
 Despite their differences in functional form, all spatial covariance structures share several key assumptions. First, they assume stationarity, meaning that correlations between observations depend only on the distance between them, not on their absolute location in space. Second, they are typically isotropic, so that the correlation depends only on the magnitude of the distance (e.g., Euclidean norm) and not its direction. Finally, there is a degree of parameter homogeneity: nearly all spatial structures rely on a scale or range parameter $\phi$, often in conjunction with a variance parameter $\sigma^2$. Some structures, such as the rational quadratic kernel, also introduce additional shape parameters like $\alpha$ or $\ell$.
 
+::: {.callout-note}
+**BMB**: pretty much everything we're considering will assume stationarity. (There are some 'adaptive' splines in `mgcv` that allow the smoothing to vary as a function of `x`, but I don't think we're going there.) Isotropy is a good point to make, although obviously we *could* construct anisotropic versions of these models if we wanted to (with rotation/scaling parameters for the `x` and `y` coordinates ...)
+:::
+
 ##### Constructor Logic and Validation
 
 ###### S3 Representation of `SpatialStructuredCov`
 
 In an S3 system, we can define an exponential covariance structure as a plain list. The kernel function is stored directly, and a character vector lists the required parameters. We simulate inheritance by giving the object multiple class tags.
 
-``` r
+```{r s3-spatial}
 exp_struct <- structure(
   list(
     kernelFn = function(d, theta) exp(-d / theta["phi"]),  # Defines how correlations decay with distance
@@ -76,7 +109,7 @@ exp_struct <- structure(
 
 S3 has no built-in validity mechanism. Validation must be done manually by a constructor function:
 
-``` r
+```{r s3-spatial-valid}
 make_spatial_cov <- function(type = "exp", theta = list(), kernelFn = NULL, paramNames = NULL, distanceFn = NULL) {
   # Validate required parameters
     test_d <- matrix(c(0, 1, 1, 0), nrow = 2)  # symmetric distance matrix
@@ -119,11 +152,24 @@ make_spatial_cov <- function(type = "exp", theta = list(), kernelFn = NULL, para
 }
 ```
 
+::: {.callout-note}
+**BMB**: I might try to avoid repeating by writing functions like this:
+```{r assert-function}
+strip_parent <- function(x) gsub("^[^$]\\$", "", x)
+check_positive <- function(x) {
+  nm <- deparse(substitute(x)) |> strip_parent()
+  if (!is.null(x) && x <= 0) stop(sprintf("%s must be > 0", nm),
+                                  .call = FALSE)
+}
+```
+(and similarly for `check_nonnegative`, etc.) (PS we should probably avoid pipes in production; in principle `lme4` still works with R versions < 4 and we don't want to break back-compatibility more than necessary)
+:::
+
 ###### S4 Representation of `SpatialStructuredCov`
 
 In an S4 system, we define a virtual class `SpatialStructuredCov` that extends a general `StructuredCov` base class. This class declares formal slots for the kernel function and parameter names, ensuring every instance has the expected components. Specific structures (like exponential, linear or spherical) then subclass this definition.
 
-``` r
+```{r s4-basics}
 library(stats4)
 
 setClass("StructuredCov", slots = list()) 
@@ -170,7 +216,7 @@ setClass("SpherCov",
            theta = list(sigma = 1, phi = 1),
            distanceFn = NULL
          ))
-l
+
 setClass("RatQuadCov",
          contains = "SpatialStructuredCov",
          prototype = list(
@@ -712,3 +758,5 @@ bad_dist <- new("ExpCov")
 bad_dist@distanceFn <- bad_dist_fn
 print(try(validObject(bad_dist), silent = TRUE))
 ```
+
+## references
