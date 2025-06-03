@@ -1,11 +1,9 @@
 ---
-title: "Class Design Document"
+title: "Design Document: Structured Covariance Matrices for `lme4`"
 format: html
 engine: knitr
 bibliography: gsoc2025.bib
 ---
-
-# Design Document: Structured Covariance Matrices for `lme4`
 
 ## Task 0: Class Structure
 
@@ -85,7 +83,7 @@ $$
 
 where $d_{ij}$ is the distance between observations $x_i$ and $x_j$, $\sigma^2$ is a marginal variance, and $\rho_\theta$ is a structure-specific kernel function parameterized by one or more values in the vector $\theta$. Each subclass of `SpatialStructuredCov`, such as exponential, linear, spherical, or rational quadratic, corresponds to a different form of $\rho_\theta$.
 
-Despite their differences in functional form, all spatial covariance structures share several key assumptions. First, they assume stationarity, meaning that correlations between observations depend only on the distance between them, not on their absolute location in space. Second, they are typically isotropic, so that the correlation depends only on the magnitude of the distance (e.g., Euclidean norm) and not its direction. Finally, there is a degree of parameter homogeneity: nearly all spatial structures rely on a scale or range parameter $\phi$, often in conjunction with a variance parameter $\sigma^2$. Some structures, such as the rational quadratic kernel, also introduce additional shape parameters like $\alpha$ or $\ell$.
+Despite their differences in functional form, all spatial covariance structures share assumptions. First, they assume stationarity, meaning that correlations between observations depend only on the distance between them. Second, they are typically isotropic, so that the correlation depends only on the magnitude of the distance (e.g., Euclidean norm) and not its direction. Finally, there is a degree of parameter homogeneity: nearly all spatial structures rely on a scale or range parameter $\phi$, often in conjunction with a variance parameter $\sigma^2$. Some structures, such as the rational quadratic kernel, also introduce additional shape parameters like $\alpha$ or $\ell$.
 
 ::: {.callout-note}
 **BMB**: pretty much everything we're considering will assume stationarity. (There are some 'adaptive' splines in `mgcv` that allow the smoothing to vary as a function of `x`, but I don't think we're going there.) Isotropy is a good point to make, although obviously we *could* construct anisotropic versions of these models if we wanted to (with rotation/scaling parameters for the `x` and `y` coordinates ...)
