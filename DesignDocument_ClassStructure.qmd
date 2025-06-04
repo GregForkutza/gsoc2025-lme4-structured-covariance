@@ -5,6 +5,8 @@ engine: knitr
 bibliography: gsoc2025.bib
 ---
 
+<!-- define new callout types? Seems hard: https://github.com/quarto-dev/quarto-cli/discussions/7753 -->
+
 ## Task 0: Class Structure
 
 ::: {.callout-note}
@@ -18,6 +20,10 @@ bibliography: gsoc2025.bib
 
 ### Hierarchical Class Structure
 
+::: {.callout-note}
+**BMB**: Do we need "Structured" in all of these sub-class names? i.e. we could call them `CorrelationCov`, `TimeSeriesCov`, `SpatialCov`, `PhyloCov` ...
+:::
+
 -   **StructuredCov**
     -   **IdentityStructuredCov**
         -   `diag` (diagonal, homogeneous): $\theta = \sigma^2$
@@ -28,6 +34,14 @@ bibliography: gsoc2025.bib
 
 ::: {.callout-note}
 **BMB**: I wouldn't say reduced rank is "unstructured". There is really only one type of "unstructured" covariance matrix, i.e. one whose only constraint is that it is positive semidefinite.
+
+Also, there are a couple of subtleties about parameterization, don't know whether they needed to be noted/taken into account here or not. 
+
+* `lme4` uses a *non-logged* Cholesky factor parameterization (technically, the parameterization is $\theta = \mathrm{vech}(\mathrm{Chol}(\Sigma))$ where $\mathrm{vech}$ is the [half-vectorization operator](https://en.wikipedia.org/wiki/Vectorization_(mathematics)) ...
+* `glmmTMB` uses a different parameterization (see its [covariance structure vignette](https://cran.r-project.org/web/packages/glmmTMB/vignettes/covstruct.html)), which separates the correlation matrix from the standard deviation vector. I think it would be possible (although not necessarily worth it) to allow this parameterization, by putting this translation machinery into the `calcLambda` hook function (or whatever we'll calling it ...) (again, cf `pdLogChol` vs `pdNatural` in `nlme` ...
+* there are also a variety of different ways to parameterize the reduced-rank/factor-analytic covariance structure
+
+We may need to consider a hook/method for setting starting values for a given covariance structure? (`rr` is especially sensitive/tricky)
 :::
 <!-- have to hack the list structure in order to have callouts in the middle ... -->
 
@@ -37,6 +51,7 @@ bibliography: gsoc2025.bib
         -   `hetcs` (heterogeneous compound symmetric): $\theta = \{\sigma_1^2, \ldots, \sigma_n^2\},\ \rho$
         -   `propto` (fixed correlation matrix): fixed correlation $+$ variance
         -   `gau` (Gaussian correlation): $\theta = \sigma^2 + \text{shape}$
+
 ::: {.callout-note}
 **BMB**: I don't understand the justification for this category (maybe you could include some notes explaining the scope of each category?) (1) at least in `glmmTMB`, `gau()` is a spatial correlation structure --- although arguably you could use it (a Gaussian process with a 'squared exponential'/'Gaussian'/'radial basis function' kernel) in 1D, as a time-series model as well. In any case, it's distance-dependent in a way that doesn't naturally seem to fit with the other cases.
 :::
@@ -290,6 +305,15 @@ All spatial structures should support:
 - `nTheta()`: returns the number of free parameters. 
 - `makeLambda(structure, theta, distmat)`: builds the relative covariance factor $\Lambda_\theta$ using the kernel function and a distance matrix. 
 - `validate(structure)`: checks that all parameter values are within valid bounds.
+
+::: {.callout-note}
+**BMB**: we may need separate functions for (1) initially building the *structure* of Lambda (i.e., what is the sparsity pattern?) and (2) computing a new set of values and poking them into the appropriate slots in an existing Lambda matrix. Note that `lme4` uses `Lambdat` internally throughout, to improve computational efficiency (see the JSS paper for details)
+
+We don't necessarily need separate machinery for classes with different numbers of parameters: you can pass a list of parameters and apply `do.call()` ...
+
+Finally, we do need to think about how/where to handle any additional parameters. Current `lme4` only has three parameter vectors: `beta` for fixed effects, `theta` for parameters controlling random effects, `b` for latent variables. Do we need additional parameter vectors to handle the complexity described here, or does everything get stuffed into `theta` ?
+:::
+
 
 These methods can be defined once for the `SpatialStructuredCov` superclass and reused by all subclasses, except when a structure has special behavior (e.g., `ratquad` has more parameters than `exp`).
 
