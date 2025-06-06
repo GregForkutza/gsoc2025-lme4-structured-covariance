@@ -37,10 +37,11 @@ Finally, I plan(well see...) to wrap up the week with basic prototyping and test
 
 
 ### Daily Log
-
 | Date   | Hours | Task Summary                                                                                                                                                                   |
 | ------ | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | June 1 | 2 hrs | Created and structured the work log; reviewed `glmmTMB` formula syntax documentation                                                                                           |
 | June 2 | 4 hrs | Zoom meeting with Mikael on S3 vs S4 design. Drafted architectural notes for formula parsing and user interface                                                                |
 | June 3 | 8 hrs | Implemented class structure for `SpatialStructuredCov` as part of S3 vs S4 design document. Began defining remaining classes, including diagonal and block-diagonal structures |
+| June 4 | 2 hrs | Read S3 vs S4 chapter in *Advanced R* to deepen understanding of class system differences                                                                                      |
+| June 6 | 6 hrs | Researched covariance structure design patterns and rewrote class hierarchy document in response to mentor feedback                                                            |
 
