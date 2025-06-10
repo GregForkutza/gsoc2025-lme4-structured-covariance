@@ -17,12 +17,11 @@ In May I accomplished:
 
 ## Work Period
 
-### Week 1: June 3 – June 7 (And most likely Week 2)
+### Week 1: June 3 – June 8 (And most likely Week 2)
 
  Finalize the S4 (or possibly S3—though I’m assuming S4 for now to be able to write things out concretely) class hierarchy and method interface for structured covariance matrices in lme4, and begin building the formula parsing and model construction infrastructure that links user-specified structured random effects to the internal model-fitting process.
 
 The first objective this week is to build out a basic class structure using S4. This involves setting up a general parent class called `StructuredCov`, and then adding more specific types to cover different kinds of covariance structures. These include a diagonal type (`DiagonalStructuredCov`) with examples like `IndepCov` and `HeteroDiagCov`, a time series type (`TimeSeriesStructuredCov`) for things like `AR1Cov` or `ToeplitzCov`, a block-diagonal type (`BlockStructuredCov`), spatial types like `ExpCov` and `RatQuadCov` under `SpatialStructuredCov`, and a category for correlation-based structures (`CorrelationStructuredCov`) that would include things like `CSCov` and `UnstructuredCorrCov`. For each of these, each class should store its parameters (in a slot called `theta`), list the parameter names (in something like `paramNames`), and include any other data needed to build the structure—for example, a distance function for spatial structures or information about groupings for block-diagonal ones. I’ll also make sure there are basic checks to validate the input, and that each type can respond to core methods like `makeLambda()`, `makeCovMatrix()`, and `validObject()`. My goal here is to make sure each structure has the right shape and tools to plug into the modeling pipeline.
-
 
 The second task is to implement a user-facing formula interface that allows users to specify structured random effects using functions like `ar1()`, `cs()`, and `diag()` within a formula. 
 
@@ -32,16 +31,20 @@ After that, I’ll begin modifying the part of the code that builds the model co
 
 Finally, I plan(well see...) to wrap up the week with basic prototyping and testing. I’ll generate simple simulated datasets to check that structured terms in the formula are being recognized correctly, that their metadata is preserved and passed through, and that the right kind of structure object is created. I’ll also check that `makeLambda()` and `makeCovMatrix()` are being called where expected and that the model optimization works for at least one structure type, such as a diagonal or AR(1) structure. 
 
+### Week 2: June 9 – June 15 
+This week, my main goal is to start building the S4 class structure for covariance matrices, focusing on separating how they're defined from how their parameters are handled for optimization, and then begin connecting this to how formulas are processed. So far this week (Monday and Tuesday), I've successfully refined the S4 class hierarchy. This includes designing parallel virtual classes for parameterization types like LogChol and LogScaleBoundedCor, which will allow concrete classes for specific structures (such as Diagonal, Unstructured, Compound Symmetry, and AR(1)) to inherit from both their mathematical type and their parameter handling method.  While I don't plan to implement multiple different parameterizations for each structure right now (except possibly for unstructured covariance), this architectural choice  will easily allow for future development of alternative parameterizations without rebuilding the core hierarchy.
 
-
+I've also established all the main S4 functions every covariance object needs to implement, including methods for getting/setting parameters, computing the covariance matrix, finding its inverse, and generating start values. Looking ahead, our next steps for the remainder of the week will involve starting to write the actual S4 class definitions for Diagonal, Unstructured, Compound Symmetry, and AR(1), focusing on setting up their internal storage and the functions that convert parameters for optimization. In parallel, I'll continue planning for the user-facing formula input using functions like ar1(), cs(), and diag(), and how to extract these special terms, including reviewing examples to map formula tags to the correct S4 class names.
 
 
 ### Daily Log
-| Date   | Hours | Task Summary                                                                                                                                                                   |
-| ------ | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| June 1 | 2 hrs | Created and structured the work log; reviewed `glmmTMB` formula syntax documentation                                                                                           |
-| June 2 | 4 hrs | Zoom meeting with Mikael on S3 vs S4 design. Drafted architectural notes for formula parsing and user interface                                                                |
-| June 3 | 8 hrs | Implemented class structure for `SpatialStructuredCov` as part of S3 vs S4 design document. Began defining remaining classes, including diagonal and block-diagonal structures |
-| June 4 | 2 hrs | Read S3 vs S4 chapter in *Advanced R* to deepen understanding of class system differences                                                                                      |
-| June 6 | 6 hrs | Researched covariance structure design patterns and rewrote class hierarchy document in response to mentor feedback                                                            |
-
+| Date    | Hours | Task Summary                                                                                                                                                                   |
+| ------  | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| June 1  | 2 hrs | Created and structured the work log; reviewed `glmmTMB` formula syntax documentation                                                                                           |
+| June 2  | 4 hrs | Zoom meeting with Mikael on S3 vs S4 design. Drafted architectural notes for formula parsing and user interface                                                                |
+| June 3  | 8 hrs | Implemented class structure for `SpatialStructuredCov` as part of S3 vs S4 design document. Began defining remaining classes, including diagonal and block-diagonal structures |
+| June 4  | 2 hrs | Read S3 vs S4 chapter in *Advanced R* to deepen understanding of class system differences                                                                                      |
+| June 6  | 6 hrs | Researched covariance structure design patterns and rewrote class hierarchy document in response to mentor feedback                                                            |
+| June 8  | 2 hrs | Reviewed flexLambda branch and to identify key methods for the S4 covariance class abstract interface.                                                                         |
+| June 9  | 2 hrs | Began refining the S4 class hierarchy for covariance structures, focusing on the abstract interface and initial parameterization virtual classes.
+| June 10 | 3 hrs | Continued refining the S4 class hierarchy, setting up concrete classes for AR, Unstructured, Diagonal, and CS, incorporating parallel virtual classes for parameterization.
