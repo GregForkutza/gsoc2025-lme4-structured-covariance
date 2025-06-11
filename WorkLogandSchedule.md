@@ -46,5 +46,8 @@ I've also established all the main S4 functions every covariance object needs to
 | June 4  | 2 hrs | Read S3 vs S4 chapter in *Advanced R* to deepen understanding of class system differences                                                                                      |
 | June 6  | 6 hrs | Researched covariance structure design patterns and rewrote class hierarchy document in response to mentor feedback                                                            |
 | June 8  | 2 hrs | Reviewed flexLambda branch and to identify key methods for the S4 covariance class abstract interface.                                                                         |
-| June 9  | 2 hrs | Began refining the S4 class hierarchy for covariance structures, focusing on the abstract interface and initial parameterization virtual classes.
-| June 10 | 3 hrs | Continued refining the S4 class hierarchy, setting up concrete classes for AR, Unstructured, Diagonal, and CS, incorporating parallel virtual classes for parameterization.
+| June 9  | 2 hrs | Began refining the S4 class hierarchy for covariance structures, focusing on the abstract interface and initial parameterization virtual classes. |
+| June 10 | 3 hrs | Continued refining the S4 class hierarchy, setting up concrete classes for AR, Unstructured, Diagonal, and CS, incorporating parallel virtual classes for parameterization. |
+| June 11 | 6 hrs | Committed "feat: Implemented foundational S4 covariance structure classes and DiagonalCov." Committed core S4 covariance structure definitions and DiagonalCov implementation to covariance_structures.R (feat: Implemented foundational S4 covariance structure classes and DiagonalCov.). Started designing and prototyping tests for test-covariance_structures.R, planning to push with initial tests today. |
+
+
