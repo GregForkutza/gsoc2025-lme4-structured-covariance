@@ -1,3 +1,4 @@
+
 # Work Log and Schedule
 
 ## Bonding Period
@@ -49,5 +50,6 @@ I've also established all the main S4 functions every covariance object needs to
 | June 9  | 2 hrs | Began refining the S4 class hierarchy for covariance structures, focusing on the abstract interface and initial parameterization virtual classes. |
 | June 10 | 3 hrs | Continued refining the S4 class hierarchy, setting up concrete classes for AR, Unstructured, Diagonal, and CS, incorporating parallel virtual classes for parameterization. |
 | June 11 | 6 hrs | Committed "feat: Implemented foundational S4 covariance structure classes and DiagonalCov." Committed core S4 covariance structure definitions and DiagonalCov implementation to covariance_structures.R (feat: Implemented foundational S4 covariance structure classes and DiagonalCov.). Started designing and prototyping tests for test-covariance_structures.R, planning to push with initial tests today. |
+| June 12 | 6 hrs | Finalized and pushed the complete testthat unit test suite for the DiagonalCov class, including edge cases. Changed project strategy to build all classes first and confirmed this with Ben. Analyzed Bens technical feedback on reformulas integration which will be tomorrows task. | 
 
 
