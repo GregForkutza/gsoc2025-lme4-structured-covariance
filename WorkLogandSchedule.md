@@ -37,6 +37,8 @@ This week, my main goal is to start building the S4 class structure for covarian
 
 I've also established all the main S4 functions every covariance object needs to implement, including methods for getting/setting parameters, computing the covariance matrix, finding its inverse, and generating start values. Looking ahead, our next steps for the remainder of the week will involve starting to write the actual S4 class definitions for Diagonal, Unstructured, Compound Symmetry, and AR(1), focusing on setting up their internal storage and the functions that convert parameters for optimization. In parallel, I'll continue planning for the user-facing formula input using functions like ar1(), cs(), and diag(), and how to extract these special terms, including reviewing examples to map formula tags to the correct S4 class names.
 
+### Week 3: June 16 - 22
+Complete implementation and testing for `ar()` and `cs()` concrete covariance classes. Then, begin developing the core logic for formula parsing to return the correct S4 covariance object with its associated methods based on formula input.
 
 ### Daily Log
 | Date    | Hours | Task Summary                                                                                                                                                                   |
