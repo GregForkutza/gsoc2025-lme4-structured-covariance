@@ -40,6 +40,8 @@ I've also established all the main S4 functions every covariance object needs to
 ### Week 3: June 16 - 22
 Complete implementation and testing for `ar()` and `cs()` concrete covariance classes. Then, begin developing the core logic for formula parsing to return the correct S4 covariance object with its associated methods based on formula input.
 
+**Note:** I will not be working on Tuesday, June 17th and Wednesday, June 18th, as I’ll be preparing for a job interview on Wednesday and have tutoring commitments in the evenings. I plan to make up this time over the weekend and early next week, as this is my final week of tutoring.
+
 ### Daily Log
 | Date    | Hours | Task Summary                                                                                                                                                                   |
 | ------  | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
