@@ -42,6 +42,8 @@ Complete implementation and testing for `ar()` and `cs()` concrete covariance cl
 
 **Note:** I will not be working on Tuesday, June 17th and Wednesday, June 18th, as I’ll be preparing for a job interview on Wednesday and have tutoring commitments in the evenings. I plan to make up this time over the weekend and early next week, as this is my final week of tutoring.
 
+**Note (June 20):** I have made a thinko and forgot that we also want the heterogeneous case for CS. Tomorrow I will define a virtual class for CS and then write two concrete classes, homo and hetero, to inherit from this virtual class.
+
 ### Daily Log
 | Date    | Hours | Task Summary                                                                                                                                                                   |
 | ------  | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
